@@ -1,0 +1,40 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}SOC Incidents{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Incident Queue</span>
+    <h1>Active & Recent Incidents</h1>
+    <p class="muted">
+        This simulates an incident queue restricted to authenticated SOC analysts.
+    </p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Owner</th>
+            <th>Summary</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for incident in incidents %}
+            <tr>
+                <td>{{ incident.id }}</td>
+                <td>{{ incident.status }}</td>
+                <td>{{ incident.owner }}</td>
+                <td>{{ incident.summary }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4" class="muted">No incidents at the moment.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,46 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}SOC Login{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="card login-card">
+        <span class="tag">Secure SOC Access</span>
+        <h1>Analyst Sign-in</h1>
+        <p class="muted">
+            Use your SOC credentials to access dashboards, alerts, and active incidents.
+            All activity is audited.
+        </p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <ul class="errorlist">
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div class="field">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+            </div>
+
+            <button type="submit" class="btn-primary">Log in</button>
+            <p class="muted" style="margin-top:0.5rem;">
+                Passwords are stored using Django's secure password hashing.
+                Sessions expire when you close the browser.
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

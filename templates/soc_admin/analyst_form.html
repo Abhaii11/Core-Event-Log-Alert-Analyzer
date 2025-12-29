@@ -1,0 +1,42 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}{% if mode == "create" %}Create Analyst{% else %}Update Analyst{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:720px;">
+    <span class="tag">Admin</span>
+    <h1>{% if mode == "create" %}Create Analyst{% else %}Update Analyst{% endif %}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="field">
+            <label>Username</label>
+            {% if mode == "create" %}
+                {{ form.username }}
+            {% else %}
+                <input type="text" value="{{ user.username }}" disabled style="width:100%;padding:0.5rem;border-radius:0.5rem;border:1px solid rgba(148,163,184,0.6);background:rgba(15,23,42,0.9);color:#9ca3af;">
+            {% endif %}
+        </div>
+        <div class="field">
+            <label>Email</label>
+            {{ form.email }}
+        </div>
+        <div class="field">
+            <label>Status</label>
+            {{ form.is_active }}
+        </div>
+        <div class="field">
+            <label>Role</label>
+            {{ form.role }}
+        </div>
+        {% if mode == "create" %}
+        <div class="field">
+            <label>Initial Password (optional)</label>
+            {{ form.password }}
+        </div>
+        {% endif %}
+        <button type="submit" class="btn-primary">{% if mode == "create" %}Create{% else %}Update{% endif %}</button>
+    </form>
+</div>
+{% endblock %}
+

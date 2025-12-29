@@ -1,0 +1,48 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}SOC Alerts{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Alert Feed</span>
+    <h1>Active Alerts</h1>
+    <p class="muted">
+        Only authenticated analysts can triage alerts. Use this feed to pivot into incidents.
+    </p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Severity</th>
+            <th>Source</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for alert in alerts %}
+            <tr>
+                <td>{{ alert.id }}</td>
+                <td>
+                    {% if alert.severity == "Critical" %}
+                        <span class="badge badge-critical">{{ alert.severity }}</span>
+                    {% elif alert.severity == "High" %}
+                        <span class="badge badge-high">{{ alert.severity }}</span>
+                    {% else %}
+                        <span class="badge badge-medium">{{ alert.severity }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ alert.source }}</td>
+                <td>{{ alert.description }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4" class="muted">No active alerts.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+

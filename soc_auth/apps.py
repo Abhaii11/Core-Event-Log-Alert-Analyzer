@@ -1,0 +1,9 @@
+from django.apps import AppConfig
+
+
+class SocAuthConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "soc_auth"
+    verbose_name = "SOC Authentication"
+
+

@@ -1,0 +1,82 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}Incidents{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Incident Management</span>
+    <h1>Security Incidents</h1>
+    <p class="muted">
+        This view shows all security incidents created from correlated events. Each incident tracks its lifecycle
+        from Open → Investigating → Mitigated → Closed with full audit history.
+    </p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;align-items:flex-end;">
+        <div>
+            <a href="{% url 'soc_correlation:event_list' %}" class="btn">Correlated Events</a>
+        </div>
+        <form method="get" style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <div class="field" style="margin-bottom:0;min-width:180px;">
+                <label class="muted" for="status-filter">Status</label>
+                <select id="status-filter" name="status" style="width:100%;">
+                    <option value="">Any</option>
+                    {% for value,label in status_choices %}
+                        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field" style="margin-bottom:0;min-width:180px;">
+                <label class="muted" for="attack-type-filter">Attack type contains</label>
+                <input id="attack-type-filter" type="text" name="attack_type" value="{{ attack_type|default_if_none:'' }}" style="width:100%;" />
+            </div>
+            <div style="align-self:flex-end;">
+                <button type="submit" class="btn-primary" style="width:auto;padding-inline:1rem;">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Incident ID</th>
+            <th>Attack Type</th>
+            <th>Status</th>
+            <th>Risk Score</th>
+            <th>Assigned To</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for incident in incidents %}
+            <tr>
+                <td><strong>{{ incident.incident_id }}</strong></td>
+                <td>{{ incident.attack_type }}</td>
+                <td>
+                    {% if incident.current_status == 'open' %}
+                        <span class="badge badge-medium">Open</span>
+                    {% elif incident.current_status == 'investigating' %}
+                        <span class="badge badge-high">Investigating</span>
+                    {% elif incident.current_status == 'mitigated' %}
+                        <span class="badge badge-low">Mitigated</span>
+                    {% elif incident.current_status == 'closed' %}
+                        <span class="badge" style="background:#666;">Closed</span>
+                    {% endif %}
+                </td>
+                <td>{{ incident.risk_score|floatformat:1 }}</td>
+                <td>{{ incident.assigned_to.username|default:"Unassigned" }}</td>
+                <td>{{ incident.created_at }}</td>
+                <td>
+                    <a href="{% url 'soc_incidents:incident_detail' incident_id=incident.incident_id %}" class="btn" style="padding:0.25rem 0.5rem;font-size:0.875rem;">View Details</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7" class="muted">No incidents yet. Create incidents from correlated events in the Correlation view.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

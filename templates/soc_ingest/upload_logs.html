@@ -1,0 +1,39 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}Log Ingestion - File Upload{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Log Ingestion</span>
+    <h1>Upload Log File</h1>
+    <p class="muted">
+        Upload authentication logs, web server logs, or other text log files.
+        Each line will be stored as a separate raw alert with no transformation.
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="field">
+            <label for="{{ form.log_source.id_for_label }}">{{ form.log_source.label }}</label>
+            {{ form.log_source }}
+            <div class="muted">{{ form.log_source.help_text }}</div>
+        </div>
+
+        <div class="field">
+            <label for="{{ form.file.id_for_label }}">{{ form.file.label }}</label>
+            {{ form.file }}
+            <div class="muted">{{ form.file.help_text }}</div>
+        </div>
+
+        <button type="submit" class="btn-primary">Ingest Log File</button>
+    </form>
+
+    <p class="muted" style="margin-top:1rem;">
+        Original log lines are preserved exactly as stored in the database for evidentiary purposes.
+    </p>
+</div>
+{% endblock %}
+
+

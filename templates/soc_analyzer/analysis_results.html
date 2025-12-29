@@ -1,0 +1,108 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}Analyzed Alerts{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Alert Analyzer</span>
+    <h1>Analyzed Alerts</h1>
+    {% if analyzed %}
+        <p class="muted">
+            Analyzed <strong>{{ analyzed }}</strong> pending raw alerts using rule-based detection.
+        </p>
+    {% else %}
+        <p class="muted">
+            This view shows the output of SIEM-style detection rules applied to raw alerts.
+        </p>
+    {% endif %}
+
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;align-items:flex-end;">
+        <div>
+            <a href="{% url 'soc_ingest:raw_log_list' %}" class="btn">View Raw Logs</a>
+        </div>
+        <form method="get" style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <div class="field" style="margin-bottom:0;min-width:160px;">
+                <label class="muted" for="attack-type-filter">Attack type</label>
+                <select id="attack-type-filter" name="attack_type" style="width:100%;">
+                    <option value="">Any</option>
+                    {% for value,label in attack_type_choices %}
+                        <option value="{{ value }}" {% if attack_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field" style="margin-bottom:0;min-width:140px;">
+                <label class="muted" for="severity-filter">Severity</label>
+                <select id="severity-filter" name="severity" style="width:100%;">
+                    <option value="">Any</option>
+                    {% for value,label in severity_choices %}
+                        <option value="{{ value }}" {% if severity == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field" style="margin-bottom:0;min-width:140px;">
+                <label class="muted" for="suspicious-filter">Suspicious</label>
+                <select id="suspicious-filter" name="suspicious" style="width:100%;">
+                    <option value="">Any</option>
+                    <option value="true" {% if suspicious == 'true' %}selected{% endif %}>Suspicious only</option>
+                    <option value="false" {% if suspicious == 'false' %}selected{% endif %}>Benign only</option>
+                </select>
+            </div>
+            <div style="align-self:flex-end;">
+                <button type="submit" class="btn-primary" style="width:auto;padding-inline:1rem;">Filter</button>
+            </div>
+        </form>
+        <div style="margin-left:auto;">
+            <a href="{% url 'soc_analyzer:run_analysis' %}" class="btn">Run Analysis on Pending Alerts</a>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Detected At</th>
+            <th>Attack Type</th>
+            <th>Severity</th>
+            <th>Suspicious</th>
+            <th>Source</th>
+            <th>Uploaded By</th>
+            <th>Raw Log Line</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in analyses %}
+            <tr>
+                <td>{{ item.detected_at }}</td>
+                <td>{{ item.get_attack_type_display }}</td>
+                <td>
+                    {% if item.severity == 'critical' %}
+                        <span class="badge badge-critical">Critical</span>
+                    {% elif item.severity == 'high' %}
+                        <span class="badge badge-high">High</span>
+                    {% elif item.severity == 'medium' %}
+                        <span class="badge badge-medium">Medium</span>
+                    {% else %}
+                        <span class="badge">Low</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.is_suspicious %}
+                        <span class="badge badge-high">Suspicious</span>
+                    {% else %}
+                        <span class="badge badge-medium">Benign</span>
+                    {% endif %}
+                </td>
+                <td>{{ item.raw_alert.log_source }}</td>
+                <td>{{ item.raw_alert.uploaded_by.username }}</td>
+                <td style="font-family:monospace;white-space:pre-wrap;">{{ item.raw_alert.raw_message }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7" class="muted">No analyzed alerts yet. Run analysis on pending raw alerts first.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+

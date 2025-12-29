@@ -1,0 +1,103 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}{{ incident.incident_id }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Incident Management</span>
+    <h1>Incident {{ incident.incident_id }}</h1>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:2rem;">
+        <div>
+            <label class="muted">Attack Type</label>
+            <div><strong>{{ incident.attack_type }}</strong></div>
+        </div>
+        <div>
+            <label class="muted">Current Status</label>
+            <div>
+                {% if incident.current_status == 'open' %}
+                    <span class="badge badge-medium">Open</span>
+                {% elif incident.current_status == 'investigating' %}
+                    <span class="badge badge-high">Investigating</span>
+                {% elif incident.current_status == 'mitigated' %}
+                    <span class="badge badge-low">Mitigated</span>
+                {% elif incident.current_status == 'closed' %}
+                    <span class="badge" style="background:#666;">Closed</span>
+                {% endif %}
+            </div>
+        </div>
+        <div>
+            <label class="muted">Risk Score</label>
+            <div><strong>{{ incident.risk_score|floatformat:1 }}</strong></div>
+        </div>
+        <div>
+            <label class="muted">Assigned To</label>
+            <div>{{ incident.assigned_to.username|default:"Unassigned" }}</div>
+        </div>
+        <div>
+            <label class="muted">Created At</label>
+            <div>{{ incident.created_at }}</div>
+        </div>
+        <div>
+            <label class="muted">Created By</label>
+            <div>{{ incident.created_by.username }}</div>
+        </div>
+        <div>
+            <label class="muted">Source</label>
+            <div>{{ incident.correlated_event.source }}</div>
+        </div>
+        <div>
+            <label class="muted">Total Alerts</label>
+            <div>{{ incident.correlated_event.total_alerts }}</div>
+        </div>
+    </div>
+
+    <div style="border-top:1px solid #333;padding-top:1.5rem;margin-bottom:2rem;">
+        <h2 style="font-size:1.25rem;margin-bottom:1rem;">Update Status</h2>
+        <form method="post" style="max-width:600px;">
+            {% csrf_token %}
+            <div class="field">
+                <label for="{{ form.new_status.id_for_label }}">New Status</label>
+                {{ form.new_status }}
+            </div>
+            <div class="field">
+                <label for="{{ form.notes.id_for_label }}">Investigation Notes</label>
+                {{ form.notes }}
+                <small class="muted">{{ form.notes.help_text }}</small>
+            </div>
+            <button type="submit" class="btn-primary">Update Status</button>
+        </form>
+    </div>
+
+    <div style="border-top:1px solid #333;padding-top:1.5rem;">
+        <h2 style="font-size:1.25rem;margin-bottom:1rem;">Incident History</h2>
+        <p class="muted" style="margin-bottom:1rem;">
+            Complete audit trail of all status changes and investigation notes for this incident.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+            {% for entry in history %}
+                <div style="border-left:3px solid #f97316;padding-left:1rem;padding-bottom:0.5rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
+                        <div>
+                            <strong>{{ entry.changed_by.username }}</strong>
+                            {% if entry.old_status %}
+                                changed status from <span class="badge badge-medium">{{ entry.old_status }}</span>
+                                to <span class="badge badge-high">{{ entry.new_status }}</span>
+                            {% else %}
+                                created incident with status <span class="badge badge-high">{{ entry.new_status }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="muted">{{ entry.timestamp }}</span>
+                    </div>
+                    <div style="background:#1a1a1a;padding:0.75rem;border-radius:4px;margin-top:0.5rem;">
+                        {{ entry.notes|linebreaks }}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="muted">No history entries yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

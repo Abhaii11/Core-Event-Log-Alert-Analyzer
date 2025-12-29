@@ -1,0 +1,26 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}SOC Admin Console{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Admin Only</span>
+    <h1>Admin Console</h1>
+    <p class="muted" style="margin-bottom:1rem;">
+        This view is restricted to users in the <strong>Admin</strong> Django group, demonstrating
+        role-based access control for SOC admins vs. analysts.
+    </p>
+
+    <p class="muted">
+        To try this locally:
+    </p>
+    <ul class="muted" style="font-size:0.8rem;">
+        <li>Create a superuser: <code>python manage.py createsuperuser</code></li>
+        <li>Log into the Django admin at <code>/admin/</code></li>
+        <li>Create a group named <code>Admin</code> and assign a user to it</li>
+        <li>Log in as that user to access this console</li>
+    </ul>
+</div>
+{% endblock %}
+
+

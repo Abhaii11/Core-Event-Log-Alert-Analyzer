@@ -1,0 +1,33 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Admin</span>
+    <h1>SOC Admin Dashboard</h1>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;">
+        <div>
+            <div class="muted">Total Analysts</div>
+            <div style="font-size:1.8rem;font-weight:600;">{{ total_analysts }}</div>
+        </div>
+        <div>
+            <div class="muted">Active Analysts</div>
+            <div style="font-size:1.8rem;font-weight:600;">{{ active_analysts }}</div>
+        </div>
+        <div>
+            <div class="muted">Total Incidents</div>
+            <div style="font-size:1.8rem;font-weight:600;">{{ total_incidents }}</div>
+        </div>
+        <div>
+            <div class="muted">Critical Alerts</div>
+            <div style="font-size:1.8rem;font-weight:600;color:#fecaca;">{{ critical_alerts }}</div>
+        </div>
+    </div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <a href="{% url 'soc_admin:analyst_list' %}" class="btn">Manage Analysts</a>
+        <a href="{% url 'soc_admin:config' %}" class="btn">System Configuration</a>
+        <a href="{% url 'soc_audit:audit_list' %}" class="btn">Audit Logs</a>
+    </div>
+{% endblock %}
+

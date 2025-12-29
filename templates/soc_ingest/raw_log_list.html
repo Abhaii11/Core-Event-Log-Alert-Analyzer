@@ -1,0 +1,79 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}Raw Log Entries{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Raw Log View</span>
+    <h1>Recently Ingested Raw Logs</h1>
+    {% if ingested %}
+        <p class="muted">
+            Ingested <strong>{{ ingested }}</strong> log lines{% if source %} from <strong>{{ source }}</strong>{% endif %}.
+        </p>
+    {% else %}
+        <p class="muted">
+            This view mimics a SIEM-style raw alert repository. Each row is an unmodified log line stored as evidence.
+        </p>
+    {% endif %}
+
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;align-items:flex-end;">
+        <div>
+            <a href="{% url 'soc_ingest:upload_logs' %}" class="btn">Upload Log File</a>
+            <a href="{% url 'soc_ingest:manual_entry' %}" class="btn">Manual Entry</a>
+        </div>
+        <form method="get" style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <div class="field" style="margin-bottom:0;min-width:180px;max-width:220px;flex:0 1 auto;">
+                <label class="muted" for="source-filter">Source contains</label>
+                <input id="source-filter" type="text" name="source" value="{{ source|default_if_none:'' }}" style="width:100%;" />
+            </div>
+            <div class="field" style="margin-bottom:0;min-width:160px;flex:0 1 auto;">
+                <label class="muted" for="status-filter">Status</label>
+                <select id="status-filter" name="status" style="width:100%;">
+                    <option value="">Any</option>
+                    {% for value,label in status_choices %}
+                        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="align-self:flex-end;">
+                <button type="submit" class="btn-primary" style="width:auto;padding-inline:1rem;">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Ingested At</th>
+            <th>Source</th>
+            <th>Uploaded By</th>
+            <th>Status</th>
+            <th>Raw Log Line</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for log in logs %}
+            <tr>
+                <td>{{ log.ingested_at }}</td>
+                <td>{{ log.log_source }}</td>
+                <td>{{ log.uploaded_by.username }}</td>
+                <td>
+                    {% if log.processing_status == 'unprocessed' %}
+                        <span class="badge badge-medium">Unprocessed</span>
+                    {% else %}
+                        <span class="badge badge-high">Processed</span>
+                    {% endif %}
+                </td>
+                <td style="font-family:monospace;white-space:pre-wrap;">{{ log.raw_message }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5" class="muted">No logs ingested yet.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,49 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}System Configuration{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:720px;">
+    <span class="tag">Admin</span>
+    <h1>System Configuration</h1>
+    <p class="muted">Last updated: {{ updated_at }}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="field">
+            <label>Correlation window (minutes)</label>
+            {{ form.correlation_window_minutes }}
+        </div>
+        <div class="field">
+            <label>Low threshold</label>
+            {{ form.threshold_low }}
+        </div>
+        <div class="field">
+            <label>Medium threshold</label>
+            {{ form.threshold_medium }}
+        </div>
+        <div class="field">
+            <label>High threshold</label>
+            {{ form.threshold_high }}
+        </div>
+        <div class="field">
+            <label>Critical threshold</label>
+            {{ form.threshold_critical }}
+        </div>
+        <div class="field">
+            <label>Enable brute-force detection</label>
+            {{ form.enable_brute_force }}
+        </div>
+        <div class="field">
+            <label>Enable scanning detection</label>
+            {{ form.enable_scanning }}
+        </div>
+        <div class="field">
+            <label>Enable unauthorized access detection</label>
+            {{ form.enable_unauthorized_access }}
+        </div>
+        <button type="submit" class="btn-primary">Save</button>
+    </form>
+</div>
+{% endblock %}
+

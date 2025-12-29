@@ -1,0 +1,51 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}Audit Logs{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Compliance</span>
+    <h1>Audit Logs</h1>
+
+    <form method="get" style="margin-bottom:1rem;display:flex;gap:0.5rem;align-items:center;">
+        <label class="muted">Action</label>
+        <select name="action" style="padding:0.35rem;border-radius:0.5rem;background:rgba(15,23,42,0.9);color:#e5e7eb;border:1px solid rgba(148,163,184,0.6)">
+            <option value="">All</option>
+            {% for value,label in action_choices %}
+                <option value="{{ value }}" {% if value == action %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn">Filter</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Timestamp</th>
+                <th>Analyst</th>
+                <th>Action</th>
+                <th>IP</th>
+                <th>Related</th>
+                <th>Description</th>
+                <th>Hash</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.sequence_number }}</td>
+                <td>{{ log.timestamp }}</td>
+                <td>{% if log.analyst %}{{ log.analyst.username }}{% else %}-{% endif %}</td>
+                <td>{{ log.get_action_display }}</td>
+                <td>{{ log.ip_address }}</td>
+                <td>{{ log.related_type }} {{ log.related_id }}</td>
+                <td>{{ log.description }}</td>
+                <td class="muted">{{ log.content_hash|slice:":12" }}…</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

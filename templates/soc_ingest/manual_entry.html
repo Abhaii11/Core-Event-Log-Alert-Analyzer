@@ -1,0 +1,35 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}Log Ingestion - Manual Entry{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Log Ingestion</span>
+    <h1>Manual Log Entry</h1>
+    <p class="muted">
+        Use this form to capture analyst-noted events, copied log lines, or other ad-hoc evidence.
+        The content is stored exactly as entered.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="field">
+            <label for="{{ form.log_source.id_for_label }}">{{ form.log_source.label }}</label>
+            {{ form.log_source }}
+            <div class="muted">{{ form.log_source.help_text }}</div>
+        </div>
+
+        <div class="field">
+            <label for="{{ form.raw_message.id_for_label }}">{{ form.raw_message.label }}</label>
+            {{ form.raw_message }}
+            <div class="muted">{{ form.raw_message.help_text }}</div>
+        </div>
+
+        <button type="submit" class="btn-primary">Store Raw Log Entry</button>
+    </form>
+</div>
+{% endblock %}
+
+

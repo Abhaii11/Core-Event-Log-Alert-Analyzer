@@ -1,0 +1,39 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}Manage Analysts{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Admin</span>
+    <h1>Analysts</h1>
+    <div style="margin-bottom:1rem;">
+        <a href="{% url 'soc_admin:analyst_create' %}" class="btn">Create Analyst</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.username }}</td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.is_active|yesno:"Active,Inactive" }}</td>
+                <td>{% if u.is_staff %}Admin{% else %}Analyst{% endif %}</td>
+                <td>
+                    <a href="{% url 'soc_admin:analyst_update' u.id %}" class="btn">Edit</a>
+                    <a href="{% url 'soc_admin:analyst_reset_password' u.id %}" class="btn">Reset Password</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

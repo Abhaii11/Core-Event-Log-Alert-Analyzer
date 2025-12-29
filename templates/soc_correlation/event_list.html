@@ -1,0 +1,81 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}Correlated Events{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Correlation Engine</span>
+    <h1>Correlated Security Events</h1>
+    {% if created %}
+        <p class="muted">
+            Created <strong>{{ created }}</strong> new correlated events from recent analyzed alerts.
+        </p>
+    {% else %}
+        <p class="muted">
+            This view shows higher-level security events produced by correlating multiple analyzed alerts
+            by attack type, source, and time window. These events are ideal candidates for incident creation.
+        </p>
+    {% endif %}
+
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;align-items:flex-end;">
+        <div>
+            <a href="{% url 'soc_analyzer:analysis_results' %}" class="btn">Analyzed Alerts</a>
+        </div>
+        <form method="get" style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <div class="field" style="margin-bottom:0;min-width:180px;">
+                <label class="muted" for="attack-type-filter">Attack type contains</label>
+                <input id="attack-type-filter" type="text" name="attack_type" value="{{ attack_type|default_if_none:'' }}" style="width:100%;" />
+            </div>
+            <div class="field" style="margin-bottom:0;min-width:200px;">
+                <label class="muted" for="source-filter">Source contains</label>
+                <input id="source-filter" type="text" name="source" value="{{ source|default_if_none:'' }}" style="width:100%;" />
+            </div>
+            <div style="align-self:flex-end;">
+                <button type="submit" class="btn-primary" style="width:auto;padding-inline:1rem;">Filter</button>
+            </div>
+        </form>
+        <div style="margin-left:auto;">
+            <a href="{% url 'soc_correlation:run_correlation' %}" class="btn">Run Correlation on Analyzed Alerts</a>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Created At</th>
+            <th>Attack Type</th>
+            <th>Source</th>
+            <th>Total Alerts</th>
+            <th>Risk Score</th>
+            <th>Time Window</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for event in events %}
+            <tr>
+                <td>{{ event.created_at }}</td>
+                <td>{{ event.attack_type }}</td>
+                <td>{{ event.source }}</td>
+                <td>{{ event.total_alerts }}</td>
+                <td>{{ event.risk_score|floatformat:1 }}</td>
+                <td>{{ event.start_time }} → {{ event.end_time }}</td>
+                <td>
+                    {% if event.is_promoted_to_incident %}
+                        <a href="{% url 'soc_incidents:incident_detail' incident_id=event.incident.incident_id %}" class="btn" style="padding:0.25rem 0.5rem;font-size:0.875rem;">View Incident</a>
+                    {% else %}
+                        <a href="{% url 'soc_incidents:create_incident' event_id=event.id %}" class="btn-primary" style="padding:0.25rem 0.5rem;font-size:0.875rem;">Create Incident</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7" class="muted">No correlated events yet. Run correlation on analyzed alerts first.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+

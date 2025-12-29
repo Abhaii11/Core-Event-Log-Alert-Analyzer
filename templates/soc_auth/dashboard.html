@@ -1,0 +1,126 @@
+{% extends "soc_auth/base.html" %}
+
+{% block title %}SOC Dashboard{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <span class="tag">Live SOC Overview</span>
+    <h1 style="margin-bottom:0.25rem;">Welcome, {{ request.user.username }}</h1>
+    <p class="muted" style="margin-bottom:1.25rem;">
+        This view simulates a real SOC analyst console. Access is restricted to authenticated users only.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem;">
+        <div>
+            <div class="muted">Total Alerts</div>
+            <div id="metric-total-alerts" style="font-size:1.8rem;font-weight:600;">{{ metrics.total_alerts }}</div>
+        </div>
+        <div>
+            <div class="muted">Total Incidents</div>
+            <div id="metric-total-incidents" style="font-size:1.8rem;font-weight:600;">{{ metrics.total_incidents }}</div>
+        </div>
+        <div>
+            <div class="muted">Open Incidents</div>
+            <div id="metric-open-incidents" style="font-size:1.8rem;font-weight:600;">{{ metrics.open_incidents }}</div>
+        </div>
+        <div>
+            <div class="muted">Critical Alerts</div>
+            <div id="metric-critical-alerts" style="font-size:1.8rem;font-weight:600;color:#fecaca;">{{ metrics.critical_alerts }}</div>
+        </div>
+    </div>
+
+    <div class="muted" style="margin-bottom:1rem;">
+        Last updated: <span id="last-updated">{{ last_updated }}</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1.5rem;">
+        <div class="card">
+            <h2 style="margin-top:0;">Alert Severity</h2>
+            <canvas id="chart-alert-severity" height="180"></canvas>
+        </div>
+        <div class="card">
+            <h2 style="margin-top:0;">Incident Status</h2>
+            <canvas id="chart-incident-status" height="180"></canvas>
+        </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <a href="{% url 'soc_auth:alerts' %}" class="btn">View Alert Feed</a>
+        <a href="{% url 'soc_incidents:incident_list' %}" class="btn">Open Incidents</a>
+    </div>
+</div>
+
+<script>
+const dataUrl = "{% url 'soc_auth:dashboard_data' %}";
+let alertSeverityChart;
+let incidentStatusChart;
+
+function initCharts(alertLabels, alertData, incidentLabels, incidentData) {
+    const alertCtx = document.getElementById('chart-alert-severity').getContext('2d');
+    const incidentCtx = document.getElementById('chart-incident-status').getContext('2d');
+
+    if (alertSeverityChart) alertSeverityChart.destroy();
+    if (incidentStatusChart) incidentStatusChart.destroy();
+
+    alertSeverityChart = new Chart(alertCtx, {
+        type: 'doughnut',
+        data: {
+            labels: alertLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+            datasets: [{
+                data: alertData,
+                backgroundColor: ['#a7f3d0','#fde68a','#fdba74','#fecaca'],
+                borderColor: ['rgba(0,0,0,0)'],
+            }]
+        },
+        options: {
+            plugins: { legend: { labels: { color: '#e5e7eb' } } }
+        }
+    });
+
+    incidentStatusChart = new Chart(incidentCtx, {
+        type: 'bar',
+        data: {
+            labels: incidentLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+            datasets: [{
+                label: 'Count',
+                data: incidentData,
+                backgroundColor: '#60a5fa'
+            }]
+        },
+        options: {
+            scales: {
+                x: { ticks: { color: '#e5e7eb' }, grid: { color: 'rgba(148,163,184,0.2)' } },
+                y: { ticks: { color: '#e5e7eb' }, grid: { color: 'rgba(148,163,184,0.2)' }, beginAtZero: true }
+            },
+            plugins: { legend: { labels: { color: '#e5e7eb' } } }
+        }
+    });
+}
+
+async function refreshDashboard() {
+    try {
+        const res = await fetch(dataUrl, { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const payload = await res.json();
+        const m = payload.metrics;
+        document.getElementById('metric-total-alerts').textContent = m.total_alerts;
+        document.getElementById('metric-total-incidents').textContent = m.total_incidents;
+        document.getElementById('metric-open-incidents').textContent = m.open_incidents;
+        document.getElementById('metric-critical-alerts').textContent = m.critical_alerts;
+        document.getElementById('last-updated').textContent = payload.last_updated;
+        const a = payload.charts.alert_severity;
+        const i = payload.charts.incident_status;
+        initCharts(a.labels, a.data, i.labels, i.data);
+    } catch (e) {}
+}
+
+refreshDashboard();
+setInterval(refreshDashboard, 10000);
+</script>
+{% endblock %}
+
+
