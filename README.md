@@ -70,4 +70,38 @@ The platform follows a linear security operations pipeline:
 
 1.  **Clone the repository**
     ```bash
-    git clone
+    git clone [https://github.com/your-repo/core-event-log-alert-analyzer.git](https://github.com/your-repo/core-event-log-alert-analyzer.git)
+    cd core-event-log-alert-analyzer
+    ```
+
+2.  **Set up the environment**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install django
+    ```
+
+3.  **Initialize the database**
+    ```bash
+    python manage.py migrate
+    ```
+
+4.  **Create an Administrator**
+    ```bash
+    python manage.py createsuperuser
+    ```
+
+5.  **Run the platform**
+    ```bash
+    python manage.py runserver
+    ```
+    Access the dashboard at `http://127.0.0.1:8000/`.
+
+---
+
+## 🔒 Security & Compliance
+
+The `soc_audit` application ensures compliance with strict auditing standards. 
+
+* **Immutability**: The `AuditLogEntry` model overrides `save()` and `delete()` methods to prevent modification of existing logs.
+* **Verification**: The `content_hash` field ensures that the sequence of events (Prev Hash + Content) remains unbroken.
